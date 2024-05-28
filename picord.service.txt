@@ -1,0 +1,19 @@
+[Unit]
+Description=Dc bot
+After=multi-user.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/home/chang/picord/venv/bin/python /home/chang/picord/main.py
+User=chang
+Group=chang
+Type=idle
+Restart=on-abnormal
+RestartSec=15
+RestartForceExitStatus=1
+RestartForceExitStatus=26
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
