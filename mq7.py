@@ -20,9 +20,10 @@ class COControl(commands.Cog):
         if ser and ser.in_waiting > 0:
             try:
                 line = ser.readline().decode('utf-8').rstrip()
+                print(f"读取到的数据: {line}")  # 打印传感器读取到的数据
                 return int(line)
             except ValueError:
-                print("无法解析传感器数据")
+                print("无法解析传感器数据为整数")
         return None
 
     @app_commands.command(name="check_co", description="检查一氧化碳浓度")
