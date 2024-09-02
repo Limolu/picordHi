@@ -38,15 +38,18 @@ class COControl(commands.Cog):
     @app_commands.command(name="check_co", description="檢查一氧化碳濃度")
     async def check_co(self, interaction: Interaction):
         print("命令開始執行")
+
+        await interaction.response.defer() #防止超時
+
         co_level = self.read_sensor()
         print("傳感器讀取完成")
         if co_level is not None:
             if co_level > 300:  # 300為過高門檻
-                await interaction.response.send_message(f":warning: 警告！一氧化碳濃度過高：{co_level}")
+                await interaction.followup.send(f":warning: 警告！一氧化碳濃度過高：{co_level}")
             else:
-                await interaction.response.send_message(f"一氧化碳濃度正常：{co_level}")
+                await interaction.followup.send(f"一氧化碳濃度正常：{co_level}")
         else:
-            await interaction.response.send_message("無法讀取傳感器數據。:smiling_face_with_tear: ")
+            await interaction.followup.send("無法讀取傳感器數據。:smiling_face_with_tear: ")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(COControl(bot))
