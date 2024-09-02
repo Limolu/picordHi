@@ -6,36 +6,47 @@ import serial
 import os
 
 # 初始化串口通信
+print("cog執行")
 try:
-    ser = serial.Serial('/dev/ttyUSB0', 9600)  # 确保端口和波特率正确
+    ser = serial.Serial('/dev/ttyUSB0', 9600)  # 確定端口與波特率正確
+    print("串口初始化成功")
 except serial.SerialException as e:
-    print(f"无法连接到串口: {e}")
-    ser = None  # 设置为None以防止未连接时继续尝试读取
+    print(f"無法連接到串口: {e}")
+    ser = None  # None防止沒連接時繼續讀取
+print("cog初始化完成")
 
 class COControl(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     def read_sensor(self):
+        print("讀取傳感器數據")
+        if ser is None:
+            print("ser None!")
+            return None
         if ser and ser.in_waiting > 0:
             try:
                 line = ser.readline().decode('utf-8').rstrip()
-                print(f"读取到的数据: {line}")  # 打印传感器读取到的数据
+                print(f"讀取到的數據: {line}")  # 打印傳感器讀取到的數據
                 return int(line)
-            except ValueError:
-                print("无法解析传感器数据为整数")
+            except e:
+                print("捕捉錯誤e")
+                print(e)
+        print("返回None")        
         return None
 
-    @app_commands.command(name="check_co", description="检查一氧化碳浓度")
+    @app_commands.command(name="check_co", description="檢查一氧化碳濃度")
     async def check_co(self, interaction: Interaction):
+        print("命令開始執行")
         co_level = self.read_sensor()
+        print("傳感器讀取完成")
         if co_level is not None:
-            if co_level > 300:  # 300为过高的门槛
-                await interaction.response.send_message(f"警告！一氧化碳浓度过高：{co_level}")
+            if co_level > 300:  # 300為過高門檻
+                await interaction.response.send_message(f":warning: 警告！一氧化碳濃度過高：{co_level}")
             else:
-                await interaction.response.send_message(f"一氧化碳浓度正常：{co_level}")
+                await interaction.response.send_message(f"一氧化碳濃度正常：{co_level}")
         else:
-            await interaction.response.send_message("无法读取传感器数据。")
+            await interaction.response.send_message("無法讀取傳感器數據。:smiling_face_with_tear: ")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(COControl(bot))
