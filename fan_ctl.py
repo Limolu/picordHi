@@ -129,7 +129,9 @@ class FanControl(commands.Cog):
 
     # 用於生成圖表的函數
     async def generate_plot(self, start_time, end_time):
-        url = f"{self.base_url}?start={start_time}&end={end_time}"
+        day_param = datetime.fromtimestamp(start_time).strftime('%Y-%m-%d')
+
+        url = f"{self.base_url}?day_param={day_param}"
         response = requests.get(url)
 
         if response.status_code == 200:
@@ -138,18 +140,19 @@ class FanControl(commands.Cog):
             except ValueError:
                 raise Exception("無效的json")
             
-            timestamps = []
-            temperatures = []
-            humidities = []
+            if isinstance(data, list):
+                timestamps = []
+                temperatures = []
+                humidities = []
 
-            for entry in data:
-                timestamp = entry['timestamp']
-                temperature = entry['temperature']
-                humidity = entry['humidity']
+                for entry in data:
+                    timestamp = entry['timestamp']
+                    temperature = entry['temperature']
+                    humidity = entry['humidity']
 
-                timestamps.append(timestamp)
-                temperatures.append(temperature)
-                humidities.append(humidity)
+                    timestamps.append(timestamp)
+                    temperatures.append(temperature)
+                    humidities.append(humidity)
 
 
                 # 繪製圖表
