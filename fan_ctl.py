@@ -137,6 +137,7 @@ class FanControl(commands.Cog):
         if response.status_code == 200:
             try:
                 data = response.json()
+                print(f"API 回應數據: {data}")
             except ValueError:
                 raise Exception("無效的json")
             
@@ -146,9 +147,12 @@ class FanControl(commands.Cog):
                 humidities = []
 
                 for entry in data:
-                    timestamp = entry['timestamp']
-                    temperature = entry['temperature']
-                    humidity = entry['humidity']
+                    if 'timestamp' in entry and 'temperature' in entry and 'humidity' in entry:
+                        timestamp = entry['timestamp']
+                        temperature = entry['temperature']
+                        humidity = entry['humidity']
+                    else:
+                        print(f"數據格式錯誤: {entry}")
 
                     timestamps.append(timestamp)
                     temperatures.append(temperature)
