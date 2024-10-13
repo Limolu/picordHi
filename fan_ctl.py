@@ -94,6 +94,7 @@ class FanControl(commands.Cog):
     @app_commands.command(name="歷史溫度", description="查詢歷史溫度。")
     async def history_temp(self, interaction: discord.Interaction):
 
+        await interaction.response.defer()
         embed = discord.Embed(title="歷史溫度查詢", description="請選擇查詢歷史溫度的某一天。")
 
         # 創建下拉選單
@@ -124,7 +125,7 @@ class FanControl(commands.Cog):
         view = View()
         view.add_item(select)
 
-        await interaction.response.send_message(embed=embed, view=view)
+        await interaction.followup.send(embed=embed, view=view)
 
     # 用於生成圖表的函數
     async def generate_plot(self, start_time, end_time):
