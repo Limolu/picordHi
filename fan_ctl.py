@@ -28,20 +28,15 @@ class FanControl(commands.Cog):
         GPIO.setup(self.LED_PIN, GPIO.OUT)
 
     def gpio_on(self):
-        current_time = time.time()
-        if current_time - self.last_on_time < self.auto_fan_timeout:
-            return "風扇最近已經開啟過了。"
         GPIO.output(self.LED_PIN, GPIO.HIGH)
-        self.last_on_time = current_time
+        self.last_on_time = time.time()
         return "風扇已成功開啟。"
 
     def gpio_off(self):
-        current_time = time.time()
-        if current_time - self.last_off_time < self.auto_fan_timeout:
-            return "風扇最近已經關閉過了。"
         GPIO.output(self.LED_PIN, GPIO.LOW)
-        self.last_off_time = current_time
+        self.last_off_time = time.time()
         return "風扇已成功關閉。"
+
     
     #異步
     async def fan_control_loop(self):
@@ -50,11 +45,14 @@ class FanControl(commands.Cog):
             response = requests.get(self.base_url)
             data = response.json()
             temperature = data.get("temperature")
+            current_time = time.time()
 
             if temperature > 28:
-                self.gpio_on()
+                if current_time - self.last_on_time >= self.auto_fan_timeout:
+                    self.gpio_on()
             else:
-                self.gpio_off()
+                if current_time - self.last_off_time >= self.auto_fan_timeout:
+                    self.gpio_off()
 
             await asyncio.sleep(60)
 
@@ -134,27 +132,43 @@ class FanControl(commands.Cog):
         response = requests.get(url)
 
         if response.status_code == 200:
-            data = response.json()
-            timestamps = [entry['timestamp'] for entry in data]
-            temperatures = [entry['temperature'] for entry in data]
-            humidities = [entry['humidity'] for entry in data]
+            try:
+                data = response.json()
+            except ValueError:
+                raise Exception("無效的json")
+            
+            timestamps = []
+            temperatures = []
+            humidities = []
 
-            # 繪製圖表
-            plt.figure(figsize=(10, 5))
-            plt.plot(timestamps, temperatures, label='溫度', color='red')
-            plt.plot(timestamps, humidities, label='濕度', color='blue')
+            for entry in data:
+                timestamp = entry['timestamp']
+                temperature = entry['temperature']
+                humidity = entry['humidity']
 
-            plt.title('溫度和濕度隨時間的變化')
-            plt.xlabel('時間')
-            plt.ylabel('數值')
-            plt.legend()
+                timestamps.append(timestamp)
+                temperatures.append(temperature)
+                humidities.append(humidity)
 
-            buf = BytesIO()
-            plt.savefig(buf, format='png')
-            buf.seek(0)
-            return buf
+
+                # 繪製圖表
+                plt.figure(figsize=(10, 5))
+                plt.plot(timestamps, temperatures, label='溫度', color='red')
+                plt.plot(timestamps, humidities, label='濕度', color='blue')
+
+                plt.title('溫度和濕度隨時間的變化')
+                plt.xlabel('時間')
+                plt.ylabel('數值')
+                plt.legend()
+
+                buf = BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                return buf
+            else:
+                raise Exception("非有效列表")
         else:
-            raise Exception("無法從伺服器獲取數據")
+            raise Exception(f"無法從資料庫獲取數據，狀態碼: {response.status_code}")
 
     # 根據選擇的天數返回該天的時間範圍
     def get_day_timespan(self, days_ago):
