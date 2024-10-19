@@ -5,6 +5,10 @@ from discord.ui import View, Select
 import requests
 import time
 import matplotlib.pyplot as plt
+import re
+import matplotlib.font_manager as fig
+import matplotlib.ticker as ticker
+import matplotlib.dates as mdates
 from datetime import datetime, timedelta
 import asyncio
 import RPi.GPIO as GPIO
@@ -42,16 +46,23 @@ class FanControl(commands.Cog):
     async def fan_control_loop(self):
         """異步循環，根據溫度自動控制風扇。"""
         while True:
+            print("檢查溫度...")
             response = requests.get(self.base_url)
             data = response.json()
             temperature = data.get("temperature")
             current_time = time.time()
 
             if temperature > 28:
+                print("溫度過高，開起風扇。")
                 if current_time - self.last_on_time >= self.auto_fan_timeout:
+                    print("自動風扇超時，開啟風扇。")
                     self.gpio_on()
+                else:
+                    print("風扇已經開啟，不需要再次開啟。")
             else:
+                ("溫度正常，關閉風扇。")
                 if current_time - self.last_off_time >= self.auto_fan_timeout:
+                    print("自動風扇超時，關閉風扇。")
                     self.gpio_off()
 
             await asyncio.sleep(60)
@@ -88,7 +99,8 @@ class FanControl(commands.Cog):
         data = response.json()
         temperature = data.get("temperature")
         humidity = data.get("humidity")
-        await interaction.response.send_message(f"溫度: {temperature}°C, 濕度: {humidity}%")
+        timestamp = data.get("timestamp")
+        await interaction.response.send_message(f"溫度: {temperature}°C, 濕度: {humidity}%, 時間：{timestamp}")
 
 
     @app_commands.command(name="歷史溫度", description="查詢歷史溫度。")
@@ -117,7 +129,7 @@ class FanControl(commands.Cog):
             start_time, end_time = self.get_day_timespan(days_ago)
 
             # 獲取圖像並發送給用戶
-            plot = await self.generate_plot(start_time, end_time)
+            plot = await self.generate_plot(start_time)
             await interaction.response.send_message(file=discord.File(plot, 'temperature_plot.png'))
 
         select.callback = select_callback
@@ -128,10 +140,10 @@ class FanControl(commands.Cog):
         await interaction.followup.send(embed=embed, view=view)
 
     # 用於生成圖表的函數
-    async def generate_plot(self, start_time, end_time):
+    async def generate_plot(self, start_time):
         day_param = datetime.fromtimestamp(start_time).strftime('%Y-%m-%d')
 
-        url = f"{self.base_url}?day_param={day_param}"
+        url = f"{self.base_url}?day={day_param}"
         response = requests.get(url)
 
         if response.status_code == 200:
@@ -157,16 +169,24 @@ class FanControl(commands.Cog):
                     timestamps.append(timestamp)
                     temperatures.append(temperature)
                     humidities.append(humidity)
-
+                    
+                hours_only = [re.search(r'\b(\d{2}):', timestamp).group(1) for timestamp in timestamps]
 
                 # 繪製圖表
-                plt.figure(figsize=(10, 5))
-                plt.plot(timestamps, temperatures, label='溫度', color='red')
-                plt.plot(timestamps, humidities, label='濕度', color='blue')
+                plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
+                plt.rcParams['axes.unicode_minus'] = False
 
-                plt.title('溫度和濕度隨時間的變化')
-                plt.xlabel('時間')
+                plt.figure(figsize=(12, 8))
+                plt.plot(hours_only, temperatures, label='溫度', color='red')
+                plt.plot(hours_only, humidities, label='濕度', color='blue')
+
+                plt.title(f'{day_param}的溫度和濕度隨時間變化')
+                plt.xlabel('時間(小時)')
                 plt.ylabel('數值')
+                
+                plt.gca().tick_params(axis='y', labelsize=10)
+                plt.gca().tick_params(axis='x', labelsize=8)
+                
                 plt.legend()
 
                 buf = BytesIO()
