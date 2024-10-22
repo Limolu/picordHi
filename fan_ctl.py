@@ -49,7 +49,12 @@ class FanControl(commands.Cog):
             print("檢查溫度...")
             response = requests.get(self.base_url)
             data = response.json()
-            temperature = data.get("temperature")
+            temperature_str = data.get("temperature")
+
+            temperature_match = re.search(r'\d+', temperature_str)
+            if temperature_match:
+                temperature = int(temperature_match.group())
+                
             current_time = time.time()
 
             if temperature > 28:
