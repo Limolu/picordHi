@@ -1,0 +1,12 @@
+[Unit]
+Description=FRPC Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=sudo /path/to/frpc -c /path/to/frpc.toml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -20,6 +20,13 @@ def gpio_off():
     GPIO.output(GPIO_PIN, GPIO.LOW)
     return jsonify({"status": "GPIO is OFF"}), 200
 
+# 獲取 GPIO 狀態
+@app.route('/gpio_status', methods=['GET'])
+def gpio_status():
+    state = GPIO.input(GPIO_PIN)
+    status = "ON" if state == GPIO.HIGH else "OFF"
+    return jsonify({"status": f"GPIO is {status}"}), 200
+
 if __name__ == '__main__':
     try:
         app.run(host='0.0.0.0', port=80)

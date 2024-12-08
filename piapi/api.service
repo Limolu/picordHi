@@ -1,0 +1,12 @@
+[Unit]
+Description=API Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=sudo /usr/bin/python3 /home/pi/api_project/api.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

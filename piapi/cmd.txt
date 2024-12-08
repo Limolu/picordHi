@@ -1,0 +1,41 @@
+# 安裝 frpc
+https://github.com/fatedier/frp/releases/
+frp_0.61.0_linux_arm.tar.gz
+
+
+# 創建frpc.service指令
+sudo nano /etc/systemd/system/frpc.service
+sudo systemctl daemon-reload
+sudo systemctl enable frpc
+sudo systemctl start frpc
+sudo systemctl status frpc
+journalctl -u frpc.service -b
+sudo systemctl restart frpc.service
+
+
+# 創建api.service指令
+sudo nano /etc/systemd/system/api.service
+sudo systemctl daemon-reload
+sudo systemctl enable api.service
+sudo systemctl start api.service
+sudo systemctl status api.service
+journalctl -u api.service -b
+sudo systemctl restart api.service
+
+
+#創建虛擬環境
+python3 -m venv venv
+source venv/bin/activate
+
+
+#安裝依賴包
+sudo apt update
+sudo apt upgrade
+(一次安裝)
+sudo pip install python-nmap Flask requests
+(分開安裝)
+sudo pip install python-nmap
+sudo pip install requests
+sudo pip install Flask
+
+

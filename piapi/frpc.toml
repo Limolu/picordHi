@@ -1,0 +1,11 @@
+serverSddr = "3.1.140.221"
+serverPort = 10005
+auth.method = "token"
+auth.token = "picord0409@gamil.com"
+
+[[proxies]]
+name = "test-tcp"
+type = "tpc"
+localIP = "127.0.0.1"
+localPort = 81
+remotePort = 10089
