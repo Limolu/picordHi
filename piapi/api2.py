@@ -89,11 +89,9 @@ def turn_off():
             return jsonify({"status": "error", "message": f"請求失敗: {e}"}), 500
     return jsonify({"status": "error", "message": "未找到 red1 設備"}), 404
 
+"""
 @app.route('/red1_status', methods=['GET'])
 def get_status():
-    """
-    查詢目標 ESP8266 的狀態。
-    """
     if red_ip:
         try:
             response = requests.get(f'http://{red_ip}/status1')
@@ -104,6 +102,7 @@ def get_status():
         except requests.exceptions.RequestException as e:
             return jsonify({"status": "error", "message": f"請求失敗: {e}"}), 500
     return jsonify({"status": "error", "message": "未找到 red1 設備"}), 404
+"""
 
 
 # red2
@@ -139,11 +138,9 @@ def turn_off():
             return jsonify({"status": "error", "message": f"請求失敗: {e}"}), 500
     return jsonify({"status": "error", "message": "未找到 red2 設備"}), 404
 
+"""
 @app.route('/red2_status', methods=['GET'])
 def get_status():
-    """
-    查詢目標 ESP8266 的狀態。
-    """
     if red_ip:
         try:
             response = requests.get(f'http://{red_ip}/status2')
@@ -154,6 +151,7 @@ def get_status():
         except requests.exceptions.RequestException as e:
             return jsonify({"status": "error", "message": f"請求失敗: {e}"}), 500
     return jsonify({"status": "error", "message": "未找到 red2 設備"}), 404
+"""
 
 
 # red3
@@ -189,11 +187,9 @@ def turn_off():
             return jsonify({"status": "error", "message": f"請求失敗: {e}"}), 500
     return jsonify({"status": "error", "message": "未找到 red3 設備"}), 404
 
+"""
 @app.route('/red3_status', methods=['GET'])
 def get_status():
-    """
-    查詢目標 ESP8266 的狀態。
-    """
     if red_ip:
         try:
             response = requests.get(f'http://{red_ip}/status3')
@@ -204,6 +200,7 @@ def get_status():
         except requests.exceptions.RequestException as e:
             return jsonify({"status": "error", "message": f"請求失敗: {e}"}), 500
     return jsonify({"status": "error", "message": "未找到 red3 設備"}), 404
+"""
 
 
 # light
@@ -239,11 +236,9 @@ def light_on():
             return jsonify({"status": "error", "message": f"請求失敗: {e}"}), 500
     return jsonify({"status": "error", "message": "未找到 Light ESP8266 設備"}), 404
 
+"""
 @app.route('/light_status', methods=['GET'])
 def get_status():
-    """
-    查詢目標 ESP8266 的狀態。
-    """
     if light_ip:
         try:
             response = requests.get(f'http://{light_ip}/status')
@@ -254,7 +249,7 @@ def get_status():
         except requests.exceptions.RequestException as e:
             return jsonify({"status": "error", "message": f"請求失敗: {e}"}), 500
     return jsonify({"status": "error", "message": "未找到 Light ESP8266 設備"}), 404
-
+"""
 
 if __name__ == '__main__':
     # 啟動掃描任務
